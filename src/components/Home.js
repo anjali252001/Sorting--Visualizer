@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Container, Button ,Dropdown,Row,Col } from "react-bootstrap";
+import { Container, Button, Dropdown, Row, Col } from "react-bootstrap";
 class Home extends Component {
     constructor(props) {
         super(props)
@@ -13,7 +13,8 @@ class Home extends Component {
             successColor: "#000B49",
             visSpeed: 100,
             containerColor: "#FFC600",
-
+            successBufferColor: "#086E7D",
+            bufferColor: "#3FA796"
 
         }
             ;
@@ -158,14 +159,99 @@ class Home extends Component {
 
     };
 
+    mergeSortColorHelper = async (arr, n, m, l, k) => {
+        await this.setDelay(0);
+        if (m + n === l)
+            arr[k].bgcolor = this.state.successColor;
+        else
+            arr[k].bgcolor = this.state.successBufferColor;
+        await this.setState({ array: arr });
+        return arr;
+
+    }
+    
+    merge = async (arr, low, mid,high) => {
+        let l = arr.length,
+      m = mid - low + 1,
+      n = high - mid;
+    let leftArray = new Array(m);
+    let rightArray = new Array(n);
+
+    let i, j, k;
+
+    for (i = 0; i < m; i++) {
+      await this.setDelay(0);
+      arr[low + i].bgcolor = this.state.secondaryColor;
+      leftArray[i] = arr[low + i].val;
+      await this.setState({ array: arr });
+    }
+
+    for (j = 0; j < n; j++) {
+      await this.setDelay(0);
+      arr[mid + j + 1].bgcolor = this.state.bufferColor;
+      rightArray[j] = arr[mid + j + 1].val;
+      await this.setState({ array: arr });
+    }
+
+    await this.setDelay(0);
+    i = 0;
+    j = 0;
+    k = low;
+    while (i < m && j < n) {
+      if (leftArray[i] <= rightArray[j]) {
+        arr = await this.mergeSortColorHelper(arr, m, n, l, k);
+        arr[k].val = leftArray[i];
+        i++;
+        k++;
+      } else {
+        arr = await this.mergeSortColorHelper(arr, m, n, l, k);
+        arr[k].val = rightArray[j];
+        j++;
+        k++;
+      }
+    }
+    while (i < m) {
+        arr = await this.mergeSortColorHelper(arr, m, n, l, k);
+        arr[k].val = leftArray[i];
+        i++;
+        k++;
+      }
+  
+      while (j < n) {
+        arr = await this.mergeSortColorHelper(arr, m, n, l, k);
+        arr[k].val = rightArray[j];
+        j++;
+        k++;
+      }
+    };
+
+    mergeSortHelper = async (arr, low, high) => {
+        if (low >= high) return;
+        let mid = low + Math.floor((high - low) / 2);
+        await this.mergeSortHelper(arr, low, mid);
+        await this.mergeSortHelper(arr, mid + 1, high);
+        await this.merge(arr, low, mid, high);
+      };
+    
+    mergeSort = async () => {
+        let arr = this.state.array;
+        let n = arr.length;
+        await this.mergeSortHelper(arr, 0, n - 1);
+      
+    }
+
     endAlgo = async () => {
         await this.setState({ disableButtons: false, containerColor: "#B1D0E0" });
 
         await this.setDelay(300);
         await this.setState({ containerColor: "#FFC600" });
+
     };
 
     visualizeAlgo = async (algo) => {
+        if (typeof algo === "object") {
+            algo = algo.target.value;
+          }
         await this.setState({ disableButtons: true });
         switch (algo) {
             case "bubble":
@@ -180,122 +266,131 @@ class Home extends Component {
                 await this.insertionSort();
                 await this.endAlgo();
                 break;
+            case "merge":
+                await this.mergeSort();
+                await this.endAlgo();
+                break;
+
             default:
                 await this.setState({ disableButtons: false });
                 break;
         }
     };
 
-    changeVisSpeed = async(e) => {
-       await this.setState({ visSpeed: e.target.value });
+    changeVisSpeed = async (e) => {
+        await this.setState({ visSpeed: e.target.value });
     }
     render() {
         return (
             <React.Fragment>
-              
+
                 <div className='main'>
                     <Container >
-                    <nav >
-                    <span style={{color:"#9B0000", fontWeight:"bold" ,fontSize:"2rem"}} >Sorting Visualizer</span>
-                        <br/><br/>
-                        <Row>
-                        <Col lg={6} sm={6} xs={6}>
-                        <Button 
-                                variant ="danger" 
-                                onClick={this.generateArray}
-                                    disabled={this.state.disableButtons}>
-                                    Generate new array
-                                </Button>
+                        <nav >
+                            <span style={{ color: "#9B0000", fontWeight: "bold", fontSize: "2rem" }} >Sorting Visualizer</span>
+                            <br /><br />
+                            <Row>
+                                <Col lg={6} sm={6} xs={6}>
+                                    <Button
+                                        variant="danger"
+                                        onClick={this.generateArray}
+                                        disabled={this.state.disableButtons}>
+                                        Generate new array
+                                    </Button>
                                 </Col>
                                 <Col lg={6} sm={6} xs={6}>
-                        <Dropdown>
-  <Dropdown.Toggle variant="dark" id="dropdown-basic">
-    Select Algorithm
-  </Dropdown.Toggle>
+                                    <Dropdown>
+                                        <Dropdown.Toggle variant="dark" id="dropdown-basic">
+                                            Select Algorithm
+                                        </Dropdown.Toggle>
 
-  <Dropdown.Menu>
-    <Dropdown.Item as ="button" onClick={() => this.visualizeAlgo("bubble")}
-                                    disabled={this.state.disableButtons}> 
-                                
-                                    Bubble Sort
-                               </Dropdown.Item>
-    <Dropdown.Item as="button" onClick={() => this.visualizeAlgo("selection")}
-                                    disabled={this.state.disableButtons}> 
-                                    Selection Sort
-                               </Dropdown.Item>
-    <Dropdown.Item as="button"  onClick={() => this.visualizeAlgo("insertion")}
-                                    disabled={this.state.disableButtons}> 
-                                    Insertion Sort
-                              </Dropdown.Item>
-  </Dropdown.Menu>
-</Dropdown>
-</Col>
-</Row>
+                                        <Dropdown.Menu>
+                                            <Dropdown.Item as="button" onClick={() => this.visualizeAlgo("bubble")}
+                                                disabled={this.state.disableButtons}>
+
+                                                Bubble Sort
+                                            </Dropdown.Item>
+                                            <Dropdown.Item as="button" onClick={() => this.visualizeAlgo("selection")}
+                                                disabled={this.state.disableButtons}>
+                                                Selection Sort
+                                            </Dropdown.Item>
+                                            <Dropdown.Item as="button" onClick={() => this.visualizeAlgo("insertion")}
+                                                disabled={this.state.disableButtons}>
+                                                Insertion Sort
+                                            </Dropdown.Item>
+                                            <Dropdown.Item as="button" onClick={() => this.visualizeAlgo("merge")}
+                                                disabled={this.state.disableButtons}>
+                                                Merge Sort
+                                            </Dropdown.Item>
+                                        </Dropdown.Menu>
+                                    </Dropdown>
+                                </Col>
+                            </Row>
 
 
-                </nav>
-               
-                    <div >
+                        </nav>
+
                         <div >
-                            <div>
-                                <div >
-                                    <label >Number</label>
-                                </div>
-                                <div >
-                                    <input
-                                        type="range"
-                                        min="10"
-                                        max="120"
-                                        value={this.state.arraySize}
-                                        onChange={this.changeArraySize}
-                                        disabled={this.state.disableButtons}
-
-                                    />
-                                </div>
-                            </div>
                             <div >
-                                <div >
-                                    <label>Speed</label>
-                                </div>
+                                <div>
+                                    <div >
+                                        <label >Number</label>
+                                    </div>
+                                    <div >
+                                        <input
+                                            type="range"
+                                            min="10"
+                                            max="120"
+                                            value={this.state.arraySize}
+                                            onChange={this.changeArraySize}
+                                            disabled={this.state.disableButtons}
 
+                                        />
+                                    </div>
+                                </div>
                                 <div >
-                                    <input
-                                        type="range"
-                                        min="1"
-                                        max="200"
-                                        value={this.state.visSpeed}
-                                        onChange={this.changeVisSpeed}
-                                        className="speed-control"
-                                    />
+                                    <div >
+                                        <label>Speed</label>
+                                    </div>
+
+                                    <div >
+                                        <input
+                                            type="range"
+                                            min="1"
+                                            max="200"
+                                            value={this.state.visSpeed}
+                                            onChange={this.changeVisSpeed}
+                                            className="speed-control"
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
                     </Container>
                     <Container >
-                    <div style={{ display: "flex", backgroundColor: this.state.containerColor }}>
-                        {this.state.array.map((obj, index) => (
-                            <div
-                                className="arr_bars"
-                                key={index}
-                                style={{
-                                    flex: 1,
-                                    margin: "1px",
-                                }}
-                            >
+                        <div style={{ display: "flex", backgroundColor: this.state.containerColor }}>
+                            {this.state.array.map((obj, index) => (
                                 <div
-                                    className="arr_bars_span"
+                                    className="arr_bars"
                                     key={index}
                                     style={{
-                                        backgroundColor: obj.bgcolor,
-                                        height: `${obj.val}px`,
+                                        flex: 1,
                                         margin: "1px",
                                     }}
-                                ></div>
-                            </div>
-                        ))}
-                    </div>
-                </Container>
+                                >
+                                    <div
+                                        className="arr_bars_span"
+                                        key={index}
+                                        style={{
+                                            backgroundColor: obj.bgcolor,
+                                            height: `${obj.val}px`,
+                                            margin: "1px",
+                                        }}
+                                    ></div>
+                                </div>
+                            ))}
+                        </div>
+                    </Container>
                 </div>
             </React.Fragment>
         );
