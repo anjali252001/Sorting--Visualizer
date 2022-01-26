@@ -4,4 +4,13 @@
 .speed-control{
     transform: rotate(-180deg);
 }
+@media only screen and (max-width:1100px){
+   Button.show{
+       display:none;
+    }
+    .dropdown{
+        margin-top:10px;
+    }
+}
+
 

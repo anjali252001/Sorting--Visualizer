@@ -14,7 +14,8 @@ class Home extends Component {
             visSpeed: 100,
             containerColor: "#FFC600",
             successBufferColor: "#086E7D",
-            bufferColor: "#3FA796"
+            bufferColor: "#3FA796",
+            showNumbers: false
 
         }
             ;
@@ -169,60 +170,60 @@ class Home extends Component {
         return arr;
 
     }
-    
-    merge = async (arr, low, mid,high) => {
+
+    merge = async (arr, low, mid, high) => {
         let l = arr.length,
-      m = mid - low + 1,
-      n = high - mid;
-    let leftArray = new Array(m);
-    let rightArray = new Array(n);
+            m = mid - low + 1,
+            n = high - mid;
+        let leftArray = new Array(m);
+        let rightArray = new Array(n);
 
-    let i, j, k;
+        let i, j, k;
 
-    for (i = 0; i < m; i++) {
-      await this.setDelay(0);
-      arr[low + i].bgcolor = this.state.secondaryColor;
-      leftArray[i] = arr[low + i].val;
-      await this.setState({ array: arr });
-    }
+        for (i = 0; i < m; i++) {
+            await this.setDelay(0);
+            arr[low + i].bgcolor = this.state.secondaryColor;
+            leftArray[i] = arr[low + i].val;
+            await this.setState({ array: arr });
+        }
 
-    for (j = 0; j < n; j++) {
-      await this.setDelay(0);
-      arr[mid + j + 1].bgcolor = this.state.bufferColor;
-      rightArray[j] = arr[mid + j + 1].val;
-      await this.setState({ array: arr });
-    }
+        for (j = 0; j < n; j++) {
+            await this.setDelay(0);
+            arr[mid + j + 1].bgcolor = this.state.bufferColor;
+            rightArray[j] = arr[mid + j + 1].val;
+            await this.setState({ array: arr });
+        }
 
-    await this.setDelay(0);
-    i = 0;
-    j = 0;
-    k = low;
-    while (i < m && j < n) {
-      if (leftArray[i] <= rightArray[j]) {
-        arr = await this.mergeSortColorHelper(arr, m, n, l, k);
-        arr[k].val = leftArray[i];
-        i++;
-        k++;
-      } else {
-        arr = await this.mergeSortColorHelper(arr, m, n, l, k);
-        arr[k].val = rightArray[j];
-        j++;
-        k++;
-      }
-    }
-    while (i < m) {
-        arr = await this.mergeSortColorHelper(arr, m, n, l, k);
-        arr[k].val = leftArray[i];
-        i++;
-        k++;
-      }
-  
-      while (j < n) {
-        arr = await this.mergeSortColorHelper(arr, m, n, l, k);
-        arr[k].val = rightArray[j];
-        j++;
-        k++;
-      }
+        await this.setDelay(0);
+        i = 0;
+        j = 0;
+        k = low;
+        while (i < m && j < n) {
+            if (leftArray[i] <= rightArray[j]) {
+                arr = await this.mergeSortColorHelper(arr, m, n, l, k);
+                arr[k].val = leftArray[i];
+                i++;
+                k++;
+            } else {
+                arr = await this.mergeSortColorHelper(arr, m, n, l, k);
+                arr[k].val = rightArray[j];
+                j++;
+                k++;
+            }
+        }
+        while (i < m) {
+            arr = await this.mergeSortColorHelper(arr, m, n, l, k);
+            arr[k].val = leftArray[i];
+            i++;
+            k++;
+        }
+
+        while (j < n) {
+            arr = await this.mergeSortColorHelper(arr, m, n, l, k);
+            arr[k].val = rightArray[j];
+            j++;
+            k++;
+        }
     };
 
     mergeSortHelper = async (arr, low, high) => {
@@ -231,13 +232,13 @@ class Home extends Component {
         await this.mergeSortHelper(arr, low, mid);
         await this.mergeSortHelper(arr, mid + 1, high);
         await this.merge(arr, low, mid, high);
-      };
-    
+    };
+
     mergeSort = async () => {
         let arr = this.state.array;
         let n = arr.length;
         await this.mergeSortHelper(arr, 0, n - 1);
-      
+
     }
 
     endAlgo = async () => {
@@ -251,7 +252,7 @@ class Home extends Component {
     visualizeAlgo = async (algo) => {
         if (typeof algo === "object") {
             algo = algo.target.value;
-          }
+        }
         await this.setState({ disableButtons: true });
         switch (algo) {
             case "bubble":
@@ -280,6 +281,9 @@ class Home extends Component {
     changeVisSpeed = async (e) => {
         await this.setState({ visSpeed: e.target.value });
     }
+    toggleShowNumbers = () => {
+        this.setState({showNumbers:!this.state.showNumbers});
+    }
     render() {
         return (
             <React.Fragment>
@@ -290,7 +294,7 @@ class Home extends Component {
                             <span style={{ color: "#9B0000", fontWeight: "bold", fontSize: "2rem" }} >Sorting Visualizer</span>
                             <br /><br />
                             <Row>
-                                <Col lg={6} sm={6} xs={6}>
+                                <Col lg={3} >
                                     <Button
                                         variant="danger"
                                         onClick={this.generateArray}
@@ -298,8 +302,13 @@ class Home extends Component {
                                         Generate new array
                                     </Button>
                                 </Col>
-                                <Col lg={6} sm={6} xs={6}>
-                                    <Dropdown>
+
+                                <Col lg={3}  >
+                                    <Button className="show"  onClick={this.toggleShowNumbers} variant="danger">Show Numbers</Button>
+                                </Col>
+                                <Col lg={6}  >
+                                
+                                    <Dropdown className="dropdown">
                                         <Dropdown.Toggle variant="dark" id="dropdown-basic">
                                             Select Algorithm
                                         </Dropdown.Toggle>
@@ -325,6 +334,7 @@ class Home extends Component {
                                         </Dropdown.Menu>
                                     </Dropdown>
                                 </Col>
+
                             </Row>
 
 
@@ -377,7 +387,7 @@ class Home extends Component {
                                         flex: 1,
                                         margin: "1px",
                                     }}
-                                >
+                                >{(this.state.showNumbers) ? obj.val : null}
                                     <div
                                         className="arr_bars_span"
                                         key={index}
